@@ -50,6 +50,7 @@ model Category {
 
 model Event {
   id          Int      @id @default(autoincrement())
+  clubId      Int?       @map("club_id") // 클럽 ID (nullable, 클럽 없는 이벤트도 허용)
   hostId      Int      @map("host_id")
   categoryId  Int      @map("category_id")
   title       String
@@ -60,6 +61,7 @@ model Event {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
+  club     Club?    @relation(fields: [clubId], references: [id]) // 클럽과의 관계
   host     User     @relation(fields: [hostId], references: [id])
   category Category @relation(fields: [categoryId], references: [id])
 
@@ -139,4 +141,39 @@ model City {
   user      User[]
 
   @@map("city")
+}
+
+model Club {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  ownerId     Int         @map("owner_id") // 클럽장
+  description String?     // 클럽 설명
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  owner       User        @relation(fields: [ownerId], references: [id]) // 클럽장과의 관계
+  members     ClubJoin[]  // 클럽 멤버
+  events      Event[]     // 클럽 전용 이벤트
+
+  @@map("club") // 데이터베이스 테이블 이름
+}
+
+model ClubJoin {
+  id         Int       @id @default(autoincrement())
+  clubId     Int       @map("club_id") // 소속 클럽
+  userId     Int       @map("user_id") // 멤버 ID
+  joinState  String    @default("pending") // 가입 상태: "pending", "approved"
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  club       Club      @relation(fields: [clubId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
+
+  @@unique([clubId, userId]) // 클럽-유저 쌍의 고유성 보장
+  @@map("club_join")
+}
+
+enum JoinState {
+  pending
+  joined
+  refused
 }
