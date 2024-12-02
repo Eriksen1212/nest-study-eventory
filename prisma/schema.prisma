@@ -25,6 +25,11 @@ model User {
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
   deletedAt    DateTime? @map("deleted_at")
+  clubId       Int?      @map("club_id") // (null 가능)
+  clubJoin     ClubJoin[] // 클럽 가입 관계 추가
+
+  // 클럽 소유 관계 (추가)
+  ownedClubs Club[] @relation("UserOwnedClubs") // 사용자가 소유한 클럽
 
   event     Event[]
   eventJoin EventJoin[]
@@ -146,13 +151,14 @@ model City {
 model Club {
   id          Int         @id @default(autoincrement())
   name        String      @unique
-  ownerId     Int         @map("owner_id") // 클럽장
+  ownerId     Int         @unique @map("owner_id") // 클럽장
   description String?     // 클럽 설명
+  maxCapacity Int         @default(30)    @map("max_capacity") // 최대 정원
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
 
-  owner       User        @relation(fields: [ownerId], references: [id]) // 클럽장과의 관계
-  members     ClubJoin[]  // 클럽 멤버
+  owner       User        @relation("UserOwnedClubs", fields: [ownerId], references: [id]) // 클럽장과의 관계
+  clubJoin     ClubJoin[]  // 클럽 멤버
   events      Event[]     // 클럽 전용 이벤트
 
   @@map("club") // 데이터베이스 테이블 이름
@@ -162,8 +168,9 @@ model ClubJoin {
   id         Int       @id @default(autoincrement())
   clubId     Int       @map("club_id") // 소속 클럽
   userId     Int       @map("user_id") // 멤버 ID
-  joinState  String    @default("pending") // 가입 상태: "pending", "approved"
+  joinState  JOIN_STATE @default(PENDING) @map("join_state") // 가입 상태: "pending", "joined"
   createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
 
   club       Club      @relation(fields: [clubId], references: [id])
   user       User      @relation(fields: [userId], references: [id])
@@ -172,8 +179,7 @@ model ClubJoin {
   @@map("club_join")
 }
 
-enum JoinState {
-  pending
-  joined
-  refused
+enum JOIN_STATE {
+  PENDING @map("pending")
+  JOINED @map("joined")
 }
