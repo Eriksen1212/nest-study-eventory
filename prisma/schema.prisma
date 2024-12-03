@@ -181,4 +181,6 @@ model ClubJoin {
 enum JoinState {
   PENDING @map("pending")
   JOINED @map("joined")
+
+  @@map("join_state")
 }
