@@ -151,7 +151,7 @@ model Club {
   id          Int         @id @default(autoincrement())
   name        String      @unique
   ownerId     Int         @map("owner_id") // 클럽장
-  description String?     // 클럽 설명
+  description String     // 클럽 설명
   maxCapacity Int         @default(30)    @map("max_capacity") // 최대 정원
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
