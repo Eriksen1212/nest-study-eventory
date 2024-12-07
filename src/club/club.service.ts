@@ -1,8 +1,9 @@
 import { ClubRepository } from './club.repository';
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateClubPayload } from './payload/create-club.payload';
 import { ClubDto } from './dto/club.dto';
 import { CreateClubData } from './type/create-club-data.type';
+import { JoinState } from '@prisma/client';
 
 @Injectable()
 export class ClubService {
@@ -28,5 +29,30 @@ export class ClubService {
     const club = await this.clubRepository.createClub(createData);
 
     return ClubDto.from(club);
+  }
+
+  async joinClub(clubId: number, userId: number): Promise<void> {
+    const club = await this.clubRepository.getClubById(clubId);
+    if (!club) {
+      throw new NotFoundException('존재하지 않는 club입니다.');
+    }
+
+    const joinState = await this.clubRepository.getJoinState(clubId, userId);
+    if (joinState === JoinState.PENDING) {
+      throw new ConflictException(
+        '이미 가입 신청한 club입니다. 클럽장이 요청을 처리할 때까지 기다려주세요.',
+      );
+    }
+    
+    if (joinState === JoinState.JOINED) {
+      throw new ConflictException('이미 가입한 club입니다.');
+    }
+
+    const countJoinedUsers = await this.clubRepository.countJoinedUsers(clubId);
+    if (countJoinedUsers === club.maxCapacity) {
+      throw new ConflictException('이미 정원이 다 찬 club입니다.');
+    }
+
+    await this.clubRepository.joinClub(clubId, userId);
   }
 }
