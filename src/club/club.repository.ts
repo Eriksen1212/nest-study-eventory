@@ -91,4 +91,36 @@ export class ClubRepository {
       data: { clubId, userId, joinState: JoinState.PENDING },
     });
   }
+
+  async getClubs(): Promise<ClubData[]> {
+    return this.prisma.club.findMany({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        ownerId: true,
+        maxCapacity: true,
+      },
+    });
+  }
+
+  async getMyClubs(userId: number): Promise<ClubData[]> {
+    return this.prisma.club.findMany({
+      where: {
+        clubJoin: {
+          some: {
+            userId: userId,
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        ownerId: true,
+        maxCapacity: true,
+      },
+    });
+  }
+
 }
