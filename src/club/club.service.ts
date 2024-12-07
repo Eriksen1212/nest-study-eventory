@@ -1,7 +1,8 @@
 import { ClubRepository } from './club.repository';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateClubPayload } from './payload/create-club.payload';
-import { ClubDto } from './dto/club.dto';
+import { ClubDto, ClubListDto } from './dto/club.dto';
+import { UserBaseInfo } from 'src/auth/type/user-base-info.type';
 import { CreateClubData } from './type/create-club-data.type';
 import { JoinState } from '@prisma/client';
 
@@ -54,5 +55,17 @@ export class ClubService {
     }
 
     await this.clubRepository.joinClub(clubId, userId);
+  }
+
+  async getClubs(): Promise<ClubListDto> {
+    const clubs = await this.clubRepository.getClubs();
+
+    return ClubListDto.from(clubs);
+  }
+
+  async getMyClubs(user: UserBaseInfo): Promise<ClubListDto> {
+    const clubs = await this.clubRepository.getMyClubs(user.id);
+
+    return ClubListDto.from(clubs);
   }
 }
