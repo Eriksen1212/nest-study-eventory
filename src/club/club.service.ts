@@ -1,6 +1,5 @@
 import { ClubRepository } from './club.repository';
 import {
-
   BadRequestException,
   ConflictException,
   ForbiddenException,
@@ -137,5 +136,4 @@ export class ClubService {
 
     return ClubDto.from(updatedClub);
   }
-  
 }
