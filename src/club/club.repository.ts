@@ -58,7 +58,7 @@ export class ClubRepository {
       where: {
         clubId_userId: {
           clubId,
-          userId,       
+          userId,
         },
         user: {
           deletedAt: null,
@@ -89,6 +89,38 @@ export class ClubRepository {
   async joinClub(clubId: number, userId: number): Promise<void> {
     await this.prisma.clubJoin.create({
       data: { clubId, userId, joinState: JoinState.PENDING },
+    });
+  }
+
+  async getClubs(): Promise<ClubData[]> {
+    return this.prisma.club.findMany({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        ownerId: true,
+        maxCapacity: true,
+      },
+    });
+  }
+
+  async getMyClubs(userId: number): Promise<ClubData[]> {
+    return this.prisma.club.findMany({
+      where: {
+        clubJoin: {
+          some: {
+            userId: userId,
+            joinState: JoinState.JOINED,
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        ownerId: true,
+        maxCapacity: true,
+      },
     });
   }
 }
