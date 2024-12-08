@@ -16,6 +16,7 @@ import {
     HttpCode,
     Param,
     ParseIntPipe,
+    Patch,
     Post,
     UseGuards,
     NotFoundException
@@ -25,6 +26,7 @@ import {
   import { UserBaseInfo } from 'src/auth/type/user-base-info.type';
   import { CurrentUser } from 'src/auth/decorator/user.decorator';
   import { CreateClubPayload } from './payload/create-club.payload';
+  import { UpdateClubPayload } from './payload/update-club.payload';
   
   @Controller('clubs')
   @ApiTags('Club API')
@@ -73,6 +75,19 @@ import {
     ): Promise<ClubDto> {
       const club = await this.clubService.getClubById(clubId);
       return club;
+    }
+
+    @Patch(':eventId')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: '클럽을 수정합니다.' })
+    @ApiOkResponse({ type: ClubDto })
+    async patchUpdateEvent(
+      @Param('clubId', ParseIntPipe) clubId: number,
+      @Body() payload: UpdateClubPayload,
+      @CurrentUser() user: UserBaseInfo,
+    ): Promise<ClubDto> {
+      return this.clubService.updateClub(clubId, payload, user);
     }
 
   }
