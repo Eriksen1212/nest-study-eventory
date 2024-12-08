@@ -16,6 +16,7 @@ import {
   HttpCode,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UseGuards,
   NotFoundException,
@@ -77,4 +78,17 @@ export class ClubController {
     const club = await this.clubService.getClubById(clubId);
     return club;
   }
+
+  @Patch(':clubId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '클럽을 수정합니다.' })
+  @ApiOkResponse({ type: ClubDto })
+  async patchUpdateEvent(
+    @Param('clubId', ParseIntPipe) clubId: number,
+    @Body() payload: UpdateClubPayload,
+    @CurrentUser() user: UserBaseInfo,
+  ): Promise<ClubDto> {
+    return this.clubService.updateClub(clubId, payload, user);
+
 }
