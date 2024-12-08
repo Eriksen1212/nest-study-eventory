@@ -59,7 +59,7 @@ export class ClubRepository {
       where: {
         clubId_userId: {
           clubId,
-          userId,       
+          userId,
         },
         user: {
           deletedAt: null,
@@ -153,5 +153,4 @@ export class ClubRepository {
       },
     });
   }
-
 }
