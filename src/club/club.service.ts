@@ -1,5 +1,9 @@
 import { ClubRepository } from './club.repository';
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateClubPayload } from './payload/create-club.payload';
 import { ClubDto, ClubListDto } from './dto/club.dto';
 import { UserBaseInfo } from 'src/auth/type/user-base-info.type';
@@ -9,7 +13,7 @@ import { JoinState } from '@prisma/client';
 @Injectable()
 export class ClubService {
   constructor(private readonly clubRepository: ClubRepository) {}
-  
+
   async createClub(
     userId: number,
     payload: CreateClubPayload,
@@ -44,7 +48,7 @@ export class ClubService {
         '이미 가입 신청한 club입니다. 클럽장이 요청을 처리할 때까지 기다려주세요.',
       );
     }
-    
+
     if (joinState === JoinState.JOINED) {
       throw new ConflictException('이미 가입한 club입니다.');
     }
