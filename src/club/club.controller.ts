@@ -77,7 +77,7 @@ import {
       return club;
     }
 
-    @Patch(':eventId')
+    @Patch(':clubId')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @ApiOperation({ summary: '클럽을 수정합니다.' })
