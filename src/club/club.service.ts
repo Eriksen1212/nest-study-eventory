@@ -9,7 +9,7 @@ import { JoinState } from '@prisma/client';
 @Injectable()
 export class ClubService {
   constructor(private readonly clubRepository: ClubRepository) {}
-
+  
   async createClub(
     userId: number,
     payload: CreateClubPayload,
@@ -55,6 +55,16 @@ export class ClubService {
     }
 
     await this.clubRepository.joinClub(clubId, userId);
+  }
+
+  async getClubById(clubId: number): Promise<ClubDto> {
+    const club = await this.clubRepository.getClubById(clubId);
+
+    if (!club) {
+      throw new NotFoundException('클럽이 존재하지 않습니다.');
+    }
+
+    return ClubDto.from(club);
   }
 
   async getClubs(): Promise<ClubListDto> {

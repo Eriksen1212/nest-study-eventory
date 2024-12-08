@@ -110,6 +110,7 @@ export class ClubRepository {
         clubJoin: {
           some: {
             userId: userId,
+            joinState: JoinState.JOINED,
           },
         },
       },
