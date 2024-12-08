@@ -1,5 +1,5 @@
 export type UpdateClubData = {
-    name?: string;
-    description?: string;
-    maxCapacity?: number;
-  };
+  name?: string;
+  description?: string;
+  maxCapacity?: number;
+};
