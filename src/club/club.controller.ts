@@ -48,7 +48,6 @@ export class ClubController {
     return this.clubService.createClub(user.id, payload);
   }
 
-
   @Post(':clubId/join')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
