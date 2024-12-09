@@ -181,5 +181,4 @@ export class ClubRepository {
       data: { joinState: JoinState.JOINED },
     });
   }
-
 }
