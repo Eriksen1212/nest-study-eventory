@@ -13,6 +13,8 @@ import { CreateClubData } from './type/create-club-data.type';
 import { JoinState } from '@prisma/client';
 import { UpdateClubData } from './type/update-club-data.type';
 import { UpdateClubPayload } from './payload/update-club.payload';
+import { DelegatePayload } from './payload/delegate.payload';
+import { ApprovePayload } from './payload/approve.payload';
 
 @Injectable()
 export class ClubService {
@@ -135,5 +137,67 @@ export class ClubService {
     );
 
     return ClubDto.from(updatedClub);
+  }
+
+  async delegate(
+    clubId: number,
+    userId: number,
+    payload: DelegatePayload,
+  ): Promise<ClubDto> {
+    const club = await this.clubRepository.getClubById(clubId);
+    if (!club) {
+      throw new NotFoundException('존재하지 않는 club입니다.');
+    }
+
+    if (club.ownerId !== userId) {
+      throw new ForbiddenException('클럽장만 클럽장을 위임할 수 있습니다.');
+    }
+
+    if (payload.userId === userId) {
+      throw new ConflictException('이미 클럽장인 유저입니다.');
+    }
+
+    const joinState = await this.clubRepository.getJoinState(
+      clubId,
+      payload.userId,
+    );
+    if (joinState !== JoinState.JOINED) {
+      throw new ConflictException(
+        '클럽 회원에게만 클럽장을 위임할 수 있습니다.',
+      );
+    }
+
+    const clubData = await this.clubRepository.delegate(clubId, payload.userId);
+
+    return ClubDto.from(clubData);
+  }
+
+  async approve(
+    clubId: number,
+    userId: number,
+    payload: ApprovePayload,
+  ): Promise<void> {
+    const club = await this.clubRepository.getClubById(clubId);
+    if (!club) {
+      throw new NotFoundException('존재하지 않는 club입니다.');
+    }
+
+    if (club.ownerId !== userId) {
+      throw new ForbiddenException('클럽장만 가입을 승인할 수 있습니다.');
+    }
+
+    //JoinState가 PENDING인 경우에만 승인 가능
+    const joinState = await this.clubRepository.getJoinState(
+      clubId,
+      payload.userId,
+    );
+    if (joinState === JoinState.JOINED) {
+      throw new ConflictException('이미 클럽의 회원인 유저입니다.');
+    }
+    if (!joinState) {
+      throw new ConflictException('가입 신청을 하지 않은 유저입니다.');
+    }
+
+    await this.clubRepository.approve(clubId, payload.userId);
   }
 }
