@@ -92,5 +92,4 @@ export class ClubController {
   ): Promise<ClubDto> {
     return this.clubService.updateClub(clubId, payload, user);
   }
-  
 }
