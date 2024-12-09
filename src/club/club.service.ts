@@ -200,4 +200,5 @@ export class ClubService {
 
     await this.clubRepository.approve(clubId, payload.userId);
   }
+
 }
