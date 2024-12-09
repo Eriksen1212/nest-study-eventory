@@ -51,7 +51,6 @@ export class ClubController {
     return this.clubService.createClub(user.id, payload);
   }
 
-
   @Post(':clubId/join')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -123,5 +122,4 @@ export class ClubController {
   ): Promise<void> {
     return this.clubService.approve(clubId, user.id, payload);
   }
-
 }

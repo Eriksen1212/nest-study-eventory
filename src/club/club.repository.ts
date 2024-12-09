@@ -175,11 +175,10 @@ export class ClubRepository {
       where: {
         clubId_userId: {
           clubId,
-          userId,          
+          userId,
         },
       },
       data: { joinState: JoinState.JOINED },
     });
-  } 
-
+  }
 }
