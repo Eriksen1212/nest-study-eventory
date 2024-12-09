@@ -18,6 +18,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
   UseGuards,
   NotFoundException,
 } from '@nestjs/common';
@@ -27,6 +28,8 @@ import { UserBaseInfo } from 'src/auth/type/user-base-info.type';
 import { CurrentUser } from 'src/auth/decorator/user.decorator';
 import { CreateClubPayload } from './payload/create-club.payload';
 import { UpdateClubPayload } from './payload/update-club.payload';
+import { DelegatePayload } from './payload/delegate.payload';
+import { ApprovePayload } from './payload/approve.payload';
 
 @Controller('clubs')
 @ApiTags('Club API')
@@ -93,4 +96,32 @@ export class ClubController {
   ): Promise<ClubDto> {
     return this.clubService.updateClub(clubId, payload, user);
   }
+
+  @Patch(':clubId/delegate')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '클럽장을 위임합니다.(클럽장 권한)' })
+  @ApiOkResponse({ type: ClubDto })
+  async delegate(
+    @CurrentUser() user: UserBaseInfo,
+    @Param('clubId', ParseIntPipe) clubId: number,
+    @Body() payload: DelegatePayload,
+  ): Promise<ClubDto> {
+    return this.clubService.delegate(clubId, user.id, payload);
+  }
+
+  @Put(':clubId/approve')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '클럽 가입 신청을 승인합니다.(클럽장 권한)' })
+  @HttpCode(204)
+  @ApiNoContentResponse()
+  async approve(
+    @CurrentUser() user: UserBaseInfo,
+    @Param('clubId', ParseIntPipe) clubId: number,
+    @Body() payload: ApprovePayload,
+  ): Promise<void> {
+    return this.clubService.approve(clubId, user.id, payload);
+  }
+
 }
