@@ -64,6 +64,7 @@ model Event {
   endTime     DateTime @map("end_time")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
+  isArchived  Boolean  @default(false)
 
   club     Club?    @relation(fields: [clubId], references: [id]) // 클럽과의 관계
   host     User     @relation(fields: [hostId], references: [id])

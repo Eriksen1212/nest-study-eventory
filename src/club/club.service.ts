@@ -67,6 +67,27 @@ export class ClubService {
     await this.clubRepository.joinClub(clubId, userId);
   }
 
+  async outClub(clubId: number, userId: number): Promise<void> {
+    const club = await this.clubRepository.getClubById(clubId);
+    if (!club) {
+      throw new NotFoundException('존재하지 않는 club입니다.');
+    }
+
+    //joinState가 PENDING인 경우엔 취소, JOINED인 경우엔 클럽 탈퇴
+    const joinState = await this.clubRepository.getJoinState(clubId, userId);
+    if (!joinState) {
+      throw new ConflictException('가입 신청을 한 적이 없는 club입니다.');
+    }
+
+    if (userId === club.ownerId) {
+      throw new ConflictException(
+        '클럽장은 club에서 나갈 수 없습니다. 클럽장 역할을 위임 후 탈퇴가 가능합니다.',
+      );
+    }
+
+    await this.clubRepository.outClub(clubId, userId);
+  }
+
   async getClubById(clubId: number): Promise<ClubDto> {
     const club = await this.clubRepository.getClubById(clubId);
 
@@ -137,6 +158,19 @@ export class ClubService {
     );
 
     return ClubDto.from(updatedClub);
+  }
+
+  async deleteClub(clubId: number, userId: number): Promise<void> {
+    const club = await this.clubRepository.getClubById(clubId);
+    if (!club) {
+      throw new NotFoundException('존재하지 않는 club입니다.');
+    }
+
+    if (club.ownerId !== userId) {
+      throw new ForbiddenException('클럽장만 클럽을 삭제할 수 있습니다.');
+    }
+
+    return this.clubRepository.deleteClub(clubId);
   }
 
   async delegate(
