@@ -93,6 +93,68 @@ export class ClubRepository {
     });
   }
 
+  async outClub(clubId: number, userId: number): Promise<void> {
+    return this.prisma.$transaction(async (prisma) => {
+      const clubEventsJoinedByUser = await prisma.event.findMany({
+        where: {
+          clubId,
+          eventJoin: {
+            some: {
+              userId,
+            },
+          },
+        },
+        select: {
+          id: true,
+          startTime: true,
+          hostId: true,
+        },
+      });
+
+      const deleteEvents = clubEventsJoinedByUser
+        .filter(
+          (event) => new Date() < event.startTime && event.hostId === userId,
+        )
+        .map((event) => event.id);
+
+      const removeEventJoins = clubEventsJoinedByUser
+        .filter(
+          (event) => new Date() < event.startTime && event.hostId !== userId,
+        )
+        .map((event) => ({
+          eventId: event.id,
+        }));
+
+      if (deleteEvents.length > 0) {
+        await prisma.event.deleteMany({
+          where: {
+            id: { in: deleteEvents },
+          },
+        });
+      }
+
+      if (removeEventJoins.length > 0) {
+        await prisma.eventJoin.deleteMany({
+          where: {
+            userId,
+            eventId: {
+              in: removeEventJoins.map((event) => event.eventId),
+            },
+          },
+        });
+      }
+
+      await this.prisma.clubJoin.delete({
+        where: {
+          clubId_userId: {
+            clubId,
+            userId,
+          },
+        },
+      });
+    });
+  }
+
   async getClubs(): Promise<ClubData[]> {
     return this.prisma.club.findMany({
       select: {
@@ -151,6 +213,55 @@ export class ClubRepository {
         ownerId: true,
         maxCapacity: true,
       },
+    });
+  }
+
+  async deleteClub(clubId: number): Promise<void> {
+    const clubEvents = await this.prisma.event.findMany({
+      where: {
+        clubId,
+      },
+    });
+    return this.prisma.$transaction(async (prisma) => {
+      prisma.club.delete({
+        where: {
+          id: clubId,
+        },
+      });
+
+      //아직 진행되지 않은 이벤트
+      const deleteEvents = clubEvents
+        .filter((event) => new Date() < event.startTime)
+        .map((event) => event.id);
+
+      //이미 진행된 이벤트, 아카이브로 넣어줌
+      const updateArchiveEvents = clubEvents
+        .filter((event) => new Date() >= event.startTime)
+        .map((event) => event.id);
+
+      if (deleteEvents.length > 0) {
+        await prisma.event.deleteMany({
+          where: {
+            id: {
+              in: deleteEvents,
+            },
+          },
+        });
+      }
+
+      if (updateArchiveEvents.length > 0) {
+        await prisma.event.updateMany({
+          where: {
+            id: {
+              in: updateArchiveEvents,
+            },
+          },
+          data: {
+            clubId: null,
+            isArchived: true,
+          },
+        });
+      }
     });
   }
 

@@ -64,6 +64,21 @@ export class ClubController {
     return this.clubService.joinClub(clubId, user.id);
   }
 
+  @Post(':clubId/out')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(204)
+  @ApiOperation({
+    summary: '클럽 가입 요청을 철회하거나, 클럽에서 탈퇴합니다.',
+  })
+  @ApiNoContentResponse()
+  async outClub(
+    @CurrentUser() user: UserBaseInfo,
+    @Param('clubId', ParseIntPipe) clubId: number,
+  ): Promise<void> {
+    return this.clubService.outClub(clubId, user.id);
+  }
+
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -94,6 +109,19 @@ export class ClubController {
     @CurrentUser() user: UserBaseInfo,
   ): Promise<ClubDto> {
     return this.clubService.updateClub(clubId, payload, user);
+  }
+
+  @Delete(':clubId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(204)
+  @ApiOperation({ summary: '클럽을 삭제합니다.(클럽장 권한)' })
+  @ApiNoContentResponse()
+  async deleteClub(
+    @CurrentUser() user: UserBaseInfo,
+    @Param('clubId', ParseIntPipe) clubId: number,
+  ): Promise<void> {
+    return this.clubService.deleteClub(clubId, user.id);
   }
 
   @Patch(':clubId/delegate')
