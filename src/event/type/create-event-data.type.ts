@@ -7,4 +7,5 @@ export type CreateEventData = {
   startTime: Date;
   endTime: Date;
   maxPeople: number;
+  clubId?: number | null;
 };

@@ -15,10 +15,11 @@ import { EventDetailDto } from './dto/event-detail.dto';
 import { PutUpdateEventPayload } from './payload/put-update-event.payload';
 import { UpdateEventData } from './type/update-event-data.type';
 import { PatchUpdateEventPayload } from './payload/patch-update-event.payload';
+import { ClubRepository } from 'src/club/club.repository';
 
 @Injectable()
 export class EventService {
-  constructor(private readonly eventRepository: EventRepository) {}
+  constructor(private readonly eventRepository: EventRepository, private readonly clubRepository: ClubRepository,) {}
 
   async createEvent(
     payload: CreateEventPayload,
@@ -47,6 +48,15 @@ export class EventService {
       );
     }
 
+    if (payload.clubId) {
+      const clubValidity = await this.clubRepository.getClubById(
+        payload.clubId,
+      );
+      if (!clubValidity) {
+        throw new NotFoundException('해당 클럽이 존재하지 않습니다.');
+      }
+    }
+
     const data: CreateEventData = {
       hostId: user.id,
       title: payload.title,
@@ -56,6 +66,7 @@ export class EventService {
       startTime: payload.startTime,
       endTime: payload.endTime,
       maxPeople: payload.maxPeople,
+      clubId: payload.clubId,
     };
 
     const event = await this.eventRepository.createEvent(data);

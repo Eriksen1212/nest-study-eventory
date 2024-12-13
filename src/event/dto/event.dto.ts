@@ -56,6 +56,13 @@ export class EventDto {
   })
   maxPeople!: number;
 
+  @ApiProperty({
+    description: '클럽 ID',
+    type: Number,
+    nullable: true,
+  })
+  clubId!: number | null;
+
   static from(data: EventData): EventDto {
     return {
       id: data.id,
@@ -67,6 +74,7 @@ export class EventDto {
       startTime: data.startTime,
       endTime: data.endTime,
       maxPeople: data.maxPeople,
+      clubId: data.clubId,
     };
   }
 
