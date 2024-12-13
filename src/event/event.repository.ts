@@ -7,7 +7,6 @@ import { EventQuery } from './query/event.query';
 import { EventData } from './type/event-data.type';
 import { UpdateEventData } from './type/update-event-data.type';
 
-
 @Injectable()
 export class EventRepository {
   constructor(private readonly prisma: PrismaService) {}

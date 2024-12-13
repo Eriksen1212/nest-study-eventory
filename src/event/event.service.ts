@@ -19,7 +19,10 @@ import { ClubRepository } from 'src/club/club.repository';
 
 @Injectable()
 export class EventService {
-  constructor(private readonly eventRepository: EventRepository, private readonly clubRepository: ClubRepository,) {}
+  constructor(
+    private readonly eventRepository: EventRepository,
+    private readonly clubRepository: ClubRepository,
+  ) {}
 
   async createEvent(
     payload: CreateEventPayload,
