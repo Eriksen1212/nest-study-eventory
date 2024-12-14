@@ -21,6 +21,7 @@ export class EventRepository {
         startTime: data.startTime,
         endTime: data.endTime,
         maxPeople: data.maxPeople,
+        clubId: data.clubId,
         eventCity: {
           createMany: {
             data: data.cityIds.map((cityId) => ({
@@ -43,6 +44,7 @@ export class EventRepository {
         startTime: true,
         endTime: true,
         maxPeople: true,
+        clubId: true,
       },
     });
   }
@@ -84,6 +86,7 @@ export class EventRepository {
         startTime: true,
         endTime: true,
         maxPeople: true,
+        clubId: true,
       },
     });
   }
@@ -145,6 +148,7 @@ export class EventRepository {
         startTime: true,
         endTime: true,
         maxPeople: true,
+        clubId: true,
       },
     });
   }
@@ -177,6 +181,7 @@ export class EventRepository {
         startTime: true,
         endTime: true,
         maxPeople: true,
+        clubId: true,
       },
     });
   }
@@ -204,6 +209,7 @@ export class EventRepository {
         startTime: true,
         endTime: true,
         maxPeople: true,
+        clubId: true,
       },
     });
   }

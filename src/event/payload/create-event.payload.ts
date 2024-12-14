@@ -72,4 +72,12 @@ export class CreateEventPayload {
     type: Number,
   })
   maxPeople!: number;
+
+  @IsInt()
+  @ApiProperty({
+    description: '클럽 ID',
+    type: Number,
+    nullable: true,
+  })
+  clubId?: number | null;
 }
